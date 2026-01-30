@@ -1,0 +1,30 @@
+Hello, I am building an LLM based application that converts natural language query into a dtSearch search syntax query.
+Right now, the app is in the file setup.ipynb. In the current state, the app makes a call to OpenAI's gpt-4.1-mini model.
+The function "convert_to_dtSearch(query:str)" takes in a natural language query and converts it into a dtSearch query. 
+My first request is to take the code in the python notebook and convert it into a class called "nlp_dtsearch.py".
+Please show me recommendations on the optimal way to convert the code in the notebook to a class and provide explanations.
+
+The program looks great so far. I have updated the DEFAULT_SYSTEM_PROMPT to constrain the responses to only recreating
+queries from Natural Language to dtSearch. Do you have any suggestions to contrain responses to user prompts?
+
+We've done some testing, and the feedback is that the app should be more friendly and offer more suggestions. 
+The answers are a little too concise. Also, we want the app to list multiple suggestions. For example, a user 
+needs to search for all instances of the word, Amoxicillin. They need fuzzy searches, root word, wildcard, phonetic, etc.
+What do you recommend to make the app offer more robust answers and provide a list of possible searches?
+
+We need the app to retain the conversational history. We want the user to ask follow up questions on the responses. 
+What do you suggest?
+
+Great. We now need to build User Interface for the app using gradio. When the UI loads, the title should be NLP to dtSearch. 
+There should be three panels, a side panel which will be added later, a middle panel where a user can input the search request and
+engage in a conversation in an input box. The responses will be under the box. On the third panel, the UI would show the history of the conversation. 
+Is this something that can be done? 
+
+
+Okay. Let's make the following changes:
+1. Give the user the ability to download chat history into a text file. 
+2. Change the theme of the app to dark.
+3. Change the color of the buttons to orange
+4. Make the left panel collapseable
+5. Change the font type to Arial
+6. Create a button that clears chat history
