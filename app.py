@@ -1,5 +1,5 @@
 """
-Gradio UI for NLP to dtSearch application.
+Gradio UI for NLQ to dtSearch application.
 
 This application provides a three-panel interface:
 - Left panel: Side panel (placeholder for future features)
@@ -171,7 +171,7 @@ def download_chat_history() -> str:
         return None
     
     # Create a formatted text file
-    lines = ["NLP to dtSearch - Chat History\n"]
+    lines = ["NLQ to dtSearch - Chat History\n"]
     lines.append(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     lines.append("=" * 50 + "\n\n")
     
@@ -316,21 +316,25 @@ def create_ui():
     }
     """
     
-    with gr.Blocks(title="NLP to dtSearch", css=custom_css) as app:
+    with gr.Blocks(title="NLQ to dtSearch", css=custom_css) as app:
         # Title
-        gr.Markdown("# NLP to dtSearch", elem_classes=["title"])
+        gr.Markdown("# NLQ to dtSearch", elem_classes=["title"])
         gr.Markdown("Convert natural language queries into dtSearch syntax with AI assistance.")
         
         with gr.Row():
-            # Left Panel - Side panel (collapsible)
+            # Left Panel - About panel (collapsible)
             with gr.Column(scale=1, min_width=200, visible=True) as left_panel:
-                with gr.Accordion("Side Panel", open=False):
-                    gr.Markdown("_Additional features will be added here later._")
-                    placeholder_text = gr.Markdown(
-                        "This panel is reserved for future features such as:\n"
-                        "- Search options\n"
-                        "- Settings\n"
-                        "- Advanced filters"
+                with gr.Accordion("About NLQ to dtSearch", open=False):
+                    gr.Markdown(
+                        "This application is a prototype eDiscovery tool designed to translate plain-English questions into precise, "
+                        "well-formed dtSearch queries. It enables eDiscovery practitioners to move faster from intent to execution, "
+                        "reducing the trial-and-error often involved in building complex search syntax.\n\n"
+                        "Beyond its immediate utility, this project showcases how quickly and effectively eDiscovery professionals can design, "
+                        "build, and deploy impactful in-house tools using modern AI technologies. Large Language Models are reshaping "
+                        "the way practitioners work—augmenting expertise, improving consistency, and accelerating insight across the discovery lifecycle.\n\n"
+                        "This prototype is intended to demonstrate both practical value and future potential: empowering practitioners to focus less on "
+                        "syntax and more on strategy.\n\n"
+                        "For questions, feedback, or collaboration opportunities, please contact the developer, John K. Hancock, at jkhancock@gmail.com"
                     )
             
             # Middle Panel - Chat interface

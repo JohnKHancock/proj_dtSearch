@@ -32,3 +32,29 @@ Okay. Let's make the following changes:
 
 Is there a feature where the user can load a saved conversation history?
 If so, will the LLM be able to read it and have an updated conversation history?
+
+We need to make the following changes:
+
+Change the title of the application from "NLP to dtSearch" to "NLQ to dtSearch"
+
+Change the title of the left side panel to "About NLQ to dtSearch"
+
+When the panel opens, it displays the following text:
+
+    This application is a prototype eDiscovery tool designed to translate plain-English questions into precise, 
+    well-formed dtSearch queries. It enables eDiscovery practitioners to move faster from intent to execution, 
+    reducing the trial-and-error often involved in building complex search syntax.
+
+    Beyond its immediate utility, this project showcases how quickly and effectively eDiscovery professionals can design, 
+    build, and deploy impactful in-house tools using modern AI technologies. Large Language Models are reshaping
+    the way practitioners work—augmenting expertise, improving consistency, and accelerating insight across the discovery lifecycle.
+
+    This prototype is intended to demonstrate both practical value and future potential: empowering practitioners to focus less on 
+    syntax and more on strategy.
+
+    For questions, feedback, or collaboration opportunities, please contact the developer, John K. Hancock, at jkhancock@gmail.com
+
+
+
+
+
