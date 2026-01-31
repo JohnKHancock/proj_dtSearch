@@ -199,6 +199,90 @@ def download_chat_history() -> str:
     return temp_file.name
 
 
+def parse_saved_history(content: str) -> List[dict]:
+    """
+    Parse saved chat history text (same format as download) into list of message dicts.
+    
+    Args:
+        content: Raw file content.
+        
+    Returns:
+        List of {"role": "user"|"assistant", "content": str}. User content is clean (no prefix).
+    """
+    import re
+    out = []
+    # Split by separator line (dashes)
+    blocks = re.split(r"\n-{50,}\s*\n", content)
+    for block in blocks:
+        block = block.strip()
+        if not block:
+            continue
+        lines = block.split("\n", 1)
+        if len(lines) < 2:
+            continue
+        header, body = lines[0].strip(), lines[1].strip()
+        if header.lower().startswith("user "):
+            out.append({"role": "user", "content": body})
+        elif header.lower().startswith("assistant "):
+            out.append({"role": "assistant", "content": body})
+    return out
+
+
+def load_chat_history(file_obj) -> Tuple[List[dict], str]:
+    """
+    Load conversation history from an uploaded file and restore it in the converter.
+    The LLM will use this history for follow-up messages.
+    
+    Args:
+        file_obj: Gradio file upload value (file path string or object with .name).
+        
+    Returns:
+        Tuple of (chatbot history for display, history display markdown).
+    """
+    global converter
+    
+    if converter is None:
+        converter = initialize_converter()
+    
+    if file_obj is None:
+        return [], "No file uploaded. Upload a saved chat history file (.txt)."
+    
+    if isinstance(file_obj, list) and file_obj:
+        file_obj = file_obj[0]
+    path = file_obj if isinstance(file_obj, str) else getattr(file_obj, "name", None)
+    if not path or not os.path.isfile(path):
+        return [], "Invalid or missing file. Upload a saved chat history file (.txt)."
+    
+    try:
+        with open(path, "r", encoding="utf-8", errors="replace") as f:
+            content = f.read()
+    except Exception as e:
+        return [], f"Could not read file: {e}"
+    
+    parsed = parse_saved_history(content)
+    if not parsed:
+        return [], "No conversation found in file. Use a file saved with Download History."
+    
+    # Build history for converter: user messages must include prompt prefix so LLM context matches
+    prefix = converter.user_prompt_prefix
+    for_converter = []
+    for m in parsed:
+        role, text = m["role"], m["content"]
+        if role == "user":
+            for_converter.append({"role": "user", "content": prefix + text})
+        else:
+            for_converter.append({"role": "assistant", "content": text})
+    
+    converter.set_conversation_history(for_converter)
+    
+    # Chatbot display: show clean user messages (no prefix)
+    chatbot_history = parsed
+    
+    history_display = format_conversation_history(for_converter)
+    
+    return chatbot_history, history_display
+
+
 def create_ui():
     """Create and configure the Gradio interface."""
     
@@ -273,12 +357,21 @@ def create_ui():
                 with gr.Row():
                     clear_btn = gr.Button("Clear Chat History", variant="secondary")
                     download_btn = gr.Button("Download History", variant="secondary")
+                    load_btn = gr.Button("Load History", variant="secondary")
                 
                 # Download file component
                 download_file = gr.File(
                     label="Download Chat History",
                     visible=True,
                     interactive=False
+                )
+                
+                # Load history: upload saved file
+                load_file = gr.File(
+                    label="Upload saved history (.txt)",
+                    file_types=[".txt"],
+                    type="filepath",
+                    visible=True
                 )
             
             # Right Panel - Conversation history
@@ -311,6 +404,13 @@ def create_ui():
         download_btn.click(
             download_chat_history,
             outputs=[download_file]
+        )
+        
+        # Load history: restore from file and update converter so LLM has context
+        load_btn.click(
+            load_chat_history,
+            inputs=[load_file],
+            outputs=[chatbot, history_display]
         )
         
         # Initialize converter when app loads

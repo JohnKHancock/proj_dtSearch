@@ -1,0 +1,84 @@
+NLP to dtSearch - Chat History
+Generated: 2026-01-30 17:23:25
+==================================================
+
+User (1):
+Hello.
+
+--------------------------------------------------
+
+Assistant (2):
+Hello, I am a dtSearch assistant. What can I help you with?
+
+--------------------------------------------------
+
+User (3):
+I am looking for all documents with the name, Andrew Cornsworth. I need different variations of the spelling of the last name. Both names need to exist. Within that search, I need all documents with the name Susan Lardner. Both searches need a date restriction between June 1, 2023 and July 30, 2924.
+
+--------------------------------------------------
+
+Assistant (4):
+Thanks — I can build dtSearch queries for this. Quick question before I give specific strings: did you mean the date range end year 2024 (July 30, 2024) or 2924? I’ll assume 2024 below but confirm if 2924 was intentional.
+
+Below are ready-to-copy dtSearch-style queries and explanations of different strategies (so you can pick stricter or broader matches). I assume you want two searches (one for Andrew Cornsworth with variant spellings of the last name; one for Susan Lardner), and I also show how to get documents containing both names.
+
+Important: dtSearch GUI also has a date filter panel; it’s safest to set the date range there (see instructions after the queries).
+
+1) Basic / strict searches
+- Andrew with last-name variants (require both names in same document; allow a middle initial between first and last):
+  Andrew w/2 (Cornsworth OR Cornswarth OR Cornsorth OR Cornsword OR Cornswrth)
+
+- Susan Lardner (allow possible middle initial):
+  Susan w/2 (Lardner OR Lardnor OR Lardener OR Lardn*)
+
+Notes:
+- w/2 lets one intervening token (e.g., “Andrew L. Cornsworth”).
+- I listed several plausible last-name spellings in the OR list; add or remove variants you know.
+
+2) Wildcard-based, broader search (catches many suffix variants)
+- Andrew w/2 Cornsw*
+- Susan w/2 Lardn*
+
+Use these when you want a broad capture of many different suffix/misspelling patterns. Cornsw* will match Cornsworth, Cornswarth, Cornsword, etc. Lardn* will match Lardner, Lardnor, etc.
+
+3) Exact phrase search (stricter — first and last adjacent and exact)
+- "Andrew Cornsworth"
+- "Susan Lardner"
+
+Use quotes when you only want the exact adjacent name with no middle initial.
+
+4) Fuzzy / phonetic strategies (catch more misspellings or OCR errors)
+- Use dtSearch’s fuzzy or phonetic/index options (in Index/Search options). Two practical approaches:
+  - Add more OR variants explicitly (most precise control).
+  - Enable fuzzy matching or phonetic indexing in dtSearch (in Index Options, turn on fuzzy/whole-word options); then use a wildcard term like Cornsw* or a single token Cornsworth and let the fuzzy engine match close spellings.
+
+Note: exact fuzzy syntax can vary by version; if you want, tell me which dtSearch version you use and I’ll give the exact fuzzy operator form.
+
+5) Combined search (documents containing both people)
+If you need documents that contain both Andrew (with last-name variants) and Susan Lardner, use AND:
+(Andrew w/2 (Cornsworth OR Cornswarth OR Cornsorth OR Cornsword OR Cornswrth)) AND (Susan w/2 (Lardner OR Lardnor OR Lardener OR Lardn*))
+
+6) Date restriction
+Best practice: apply the date range using dtSearch’s Date/Size/Custom Metadata filter so the index filters by document created/modified date. Steps (dtSearch Desktop / Web UI — terminology may differ by version):
+- In the Search window click Search Options (or Options).
+- Find the Date/Size (or Date range) panel.
+- Choose which date field to filter on (e.g., Modified date, Created date, or a metadata field).
+- Set From = 06/01/2023 and To = 07/30/2024 (confirm end year).
+- Run the text query above along with that date filter.
+
+If you prefer to include a date condition in the text query itself, dtSearch sometimes supports date-field queries (depends on your index fields). If you tell me which date field you use (Modified, Created, or a custom metadata field), I can craft the exact date-filter expression for your dtSearch version.
+
+7) Additional suggestions / tips
+- If you get too many false positives with a wildcard, tighten the query by listing explicit variants with OR.
+- If OCR’d documents produce many misspellings, use fuzzy/phonetic indexing or increase OCR quality before indexing.
+- If you only care about documents where the two names appear near each other (e.g., same paragraph), use a proximity between the names: (Andrew w/2 Cornsw*) AND (Susan w/20 Lardn*) — replace 20 with the maximum number of words you want allowed between the names.
+
+If you confirm:
+- whether the end year should be 2024,
+- whether you want separate searches or the intersection (both people in same doc),
+- which date field to filter on (Created, Modified, or custom),
+
+I’ll give final polished queries (and exact fuzzy syntax if you tell me your dtSearch version).
+
+--------------------------------------------------
+

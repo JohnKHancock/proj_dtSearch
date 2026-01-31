@@ -28,3 +28,7 @@ Okay. Let's make the following changes:
 4. Make the left panel collapseable
 5. Change the font type to Arial
 6. Create a button that clears chat history
+
+
+Is there a feature where the user can load a saved conversation history?
+If so, will the LLM be able to read it and have an updated conversation history?

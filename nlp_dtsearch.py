@@ -500,6 +500,24 @@ Be friendly and helpful!
             return self.suggestions_conversation_history.copy()
         return self.conversation_history.copy()
     
+    def set_conversation_history(
+        self,
+        history: List[Dict[str, str]],
+        conversation_type: str = "standard"
+    ) -> None:
+        """
+        Set the conversation history (e.g. after loading a saved history).
+        The LLM will use this context for follow-up messages.
+        
+        Args:
+            history: List of message dicts with "role" and "content" keys.
+            conversation_type: Which conversation to set - "standard" or "suggestions" (default: "standard").
+        """
+        if conversation_type == "suggestions":
+            self.suggestions_conversation_history = list(history)
+        else:
+            self.conversation_history = list(history)
+    
     def get_conversation_count(self, conversation_type: str = "standard") -> int:
         """
         Get the number of exchanges in the conversation history.
