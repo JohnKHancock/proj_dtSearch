@@ -1,3 +1,15 @@
+---
+title: dtSearch Query Builder
+emoji: 🔍
+colorFrom: blue
+colorTo: purple
+sdk: gradio
+sdk_version: "4.44.1"
+python_version: "3.10"
+app_file: app.py
+pinned: false
+---
+
 # NLQ to dtSearch Application
 
 An application that converts search requests written in Natural Language to a dtSearch syntax by making a call to OpenAI's Chat GPT. The app also captures conversation history and allows the user to save the interaction.
