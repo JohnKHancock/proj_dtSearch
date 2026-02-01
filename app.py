@@ -450,10 +450,12 @@ def main():
     """Main function to launch the Gradio app."""
     app = create_ui()
     auth = _get_auth_credentials()
+    # On Hugging Face Spaces, localhost is not accessible - share=True is required
+    is_hf_space = bool(os.environ.get("SPACE_ID"))
     app.launch(
         server_name="0.0.0.0",  # Allow external connections
         server_port=7860,       # Default Gradio port
-        share=False,            # Set to True to create a public link
+        share=is_hf_space,      # True on HF Spaces (required), False locally
         show_error=True,
         auth=auth,  # None = no auth (local); list of (user,pass) when AUTH_CREDENTIALS set
         auth_message="Access restricted to approved users. Contact the administrator for credentials."
