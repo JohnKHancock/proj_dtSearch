@@ -55,6 +55,7 @@ When the panel opens, it displays the following text:
     For questions, feedback, or collaboration opportunities, please contact the developer, John K. Hancock, at jkhancock@gmail.com
 
 
+We are ready to publish the application. We want to use Hugging Face spaces, but we 
 
 
 
