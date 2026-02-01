@@ -364,10 +364,11 @@ def create_ui():
             with gr.Column(scale=3, min_width=400):
                 gr.Markdown("### Chat")
                 
-                # Chatbot interface
+                # Chatbot interface (type='messages' = openai-style role/content dicts; required in Gradio 5.x+)
                 chatbot = gr.Chatbot(
                     label="Conversation",
-                    height=500
+                    height=500,
+                    type="messages",
                 )
                 
                 # Input box
@@ -454,12 +455,13 @@ def main():
     """Main function to launch the Gradio app."""
     app = create_ui()
     auth = _get_auth_credentials()
+    # Omit share= so HF Spaces controls binding; passing share=False can trigger
+    # "localhost not accessible" in containerized environments.
     app.launch(
-        server_name="0.0.0.0",  # Allow external connections
-        server_port=7860,       # Default Gradio port
-        share=False,            # Not supported on HF Spaces; Space URL is used
+        server_name="0.0.0.0",
+        server_port=7860,
         show_error=True,
-        auth=auth,  # None = no auth (local); list of (user,pass) when AUTH_CREDENTIALS set
+        auth=auth,
         auth_message="Access restricted to approved users. Contact the administrator for credentials."
         if auth
         else None,
