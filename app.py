@@ -455,8 +455,8 @@ def main():
     """Main function to launch the Gradio app."""
     app = create_ui()
     auth = _get_auth_credentials()
-    # Omit share= so HF Spaces controls binding; passing share=False can trigger
-    # "localhost not accessible" in containerized environments.
+    # ssr_mode=False: avoid SSR Node client calling API before auth (fixes "Login credentials required").
+    # share=True: satisfy Gradio's localhost check in containers (HF Spaces serves via its own URL).
     app.launch(
         server_name="0.0.0.0",
         server_port=7860,
@@ -465,6 +465,8 @@ def main():
         auth_message="Access restricted to approved users. Contact the administrator for credentials."
         if auth
         else None,
+        ssr_mode=False,
+        share=True,
     )
 
 
