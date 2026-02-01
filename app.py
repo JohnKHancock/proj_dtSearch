@@ -18,11 +18,15 @@ import os
 def _get_auth_credentials() -> Optional[List[Tuple[str, str]]]:
     """
     Read auth credentials from environment (for Hugging Face Space Secrets).
-    Set AUTH_CREDENTIALS as comma-separated "username:password" pairs.
-    Example: AUTH_CREDENTIALS="admin:mypass,user1:pass1"
+    Supports both BASIC_AUTH_USERS (HF standard) and AUTH_CREDENTIALS.
+    Set as comma-separated "username:password" pairs.
+    Example: BASIC_AUTH_USERS="admin:mypass,user1:pass1"
     If not set, returns None (no auth required - useful for local dev).
     """
-    raw = os.environ.get("AUTH_CREDENTIALS", "").strip()
+    # Try BASIC_AUTH_USERS first (HF Spaces standard), then AUTH_CREDENTIALS
+    raw = os.environ.get("BASIC_AUTH_USERS", "").strip()
+    if not raw:
+        raw = os.environ.get("AUTH_CREDENTIALS", "").strip()
     if not raw:
         return None
     creds = []

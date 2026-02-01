@@ -23,11 +23,13 @@ The app supports username/password authentication for private deployment on Hugg
 1. **Set your Space to Private**  
    In your Space: Settings → Visibility → Private.
 
-2. **Add the `AUTH_CREDENTIALS` secret**  
+2. **Add the `BASIC_AUTH_USERS` secret**  
    Settings → Repository secrets → New secret:
-   - Name: `AUTH_CREDENTIALS`
+   - Name: `BASIC_AUTH_USERS` (Hugging Face standard)
    - Value: comma-separated `username:password` pairs, e.g.  
      `admin:YourSecurePassword,user1:pass1,user2:pass2`
+   
+   Note: `AUTH_CREDENTIALS` is also supported as an alternative name.
 
 3. Add yourself as admin, e.g. `jkhancock:YourAdminPassword`.
 
