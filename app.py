@@ -9,10 +9,29 @@ This application provides a three-panel interface:
 
 import gradio as gr
 from nlp_dtsearch import NLPdtSearch
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 from datetime import datetime
 import tempfile
 import os
+
+
+def _get_auth_credentials() -> Optional[List[Tuple[str, str]]]:
+    """
+    Read auth credentials from environment (for Hugging Face Space Secrets).
+    Set AUTH_CREDENTIALS as comma-separated "username:password" pairs.
+    Example: AUTH_CREDENTIALS="admin:mypass,user1:pass1"
+    If not set, returns None (no auth required - useful for local dev).
+    """
+    raw = os.environ.get("AUTH_CREDENTIALS", "").strip()
+    if not raw:
+        return None
+    creds = []
+    for part in raw.split(","):
+        part = part.strip()
+        if ":" in part:
+            user, pwd = part.split(":", 1)
+            creds.append((user.strip(), pwd.strip()))
+    return creds if creds else None
 
 
 # Initialize the converter (will be created when the app loads)
@@ -430,12 +449,17 @@ def create_ui():
 def main():
     """Main function to launch the Gradio app."""
     app = create_ui()
+    auth = _get_auth_credentials()
     app.launch(
         server_name="0.0.0.0",  # Allow external connections
         server_port=7860,       # Default Gradio port
         share=False,            # Set to True to create a public link
         show_error=True,
-        theme=gr.themes.Monochrome()  # Dark theme (Monochrome is dark)
+        theme=gr.themes.Monochrome(),  # Dark theme (Monochrome is dark)
+        auth=auth,  # None = no auth (local); list of (user,pass) when AUTH_CREDENTIALS set
+        auth_message="Access restricted to approved users. Contact the administrator for credentials."
+        if auth
+        else None,
     )
 
 

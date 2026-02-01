@@ -55,7 +55,10 @@ When the panel opens, it displays the following text:
     For questions, feedback, or collaboration opportunities, please contact the developer, John K. Hancock, at jkhancock@gmail.com
 
 
-We are ready to publish the application. We want to use Hugging Face spaces, but we 
+We are ready to publish the gradio application using Hugging Face spaces.
+What do you recommend as the best way to restrict access to the 
+application for only approved users while retaining access to me, the admin.
+Ultimately, I want to grant access on a user request basis.
 
 
 
