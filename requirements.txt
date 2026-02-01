@@ -1,9 +1,9 @@
 # NLQ to dtSearch - Direct dependencies
 # Install with: pip install -r requirements.txt
 
-# Core application
-gradio>=6.2.0
-gradio_client>=2.0.0  # Compatible with Gradio 6.x, fixes JSON schema TypeError
+# Core application (5.27.0+ fixes gradio_client bool schema TypeError on HF Spaces)
+gradio>=5.27.0
+gradio_client>=1.4.0
 # Pin huggingface_hub<1.0 for Gradio compatibility (HfFolder was removed in v1.0)
 huggingface_hub>=0.23.0,<1.0
 openai>=2.15.0
