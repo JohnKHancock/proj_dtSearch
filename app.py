@@ -335,7 +335,7 @@ def create_ui():
     }
     """
     
-    with gr.Blocks(title="NLQ to dtSearch", css=custom_css) as app:
+    with gr.Blocks(title="NLQ to dtSearch", css=custom_css, theme=gr.themes.Monochrome()) as app:
         # Title
         gr.Markdown("# NLQ to dtSearch", elem_classes=["title"])
         gr.Markdown("Convert natural language queries into dtSearch syntax with AI assistance.")
@@ -455,7 +455,6 @@ def main():
         server_port=7860,       # Default Gradio port
         share=False,            # Set to True to create a public link
         show_error=True,
-        theme=gr.themes.Monochrome(),  # Dark theme (Monochrome is dark)
         auth=auth,  # None = no auth (local); list of (user,pass) when AUTH_CREDENTIALS set
         auth_message="Access restricted to approved users. Contact the administrator for credentials."
         if auth
