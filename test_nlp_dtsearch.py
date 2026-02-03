@@ -121,7 +121,7 @@ class TestNLPdtSearchMethods:
 
         mock_client.chat.completions.create.assert_called_once()
         call_args = mock_client.chat.completions.create.call_args
-        assert call_args.kwargs.get("max_tokens") == converter.max_completion_tokens
+        assert call_args.kwargs.get("max_completion_tokens") == converter.max_completion_tokens
         assert call_args.kwargs["model"] == "gpt-4o-mini"
         assert len(call_args.kwargs["messages"]) == 2
         assert call_args.kwargs["messages"][0]["role"] == "system"

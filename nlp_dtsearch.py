@@ -326,7 +326,7 @@ Be friendly and helpful!
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
-            max_tokens=self.max_completion_tokens,
+            max_completion_tokens=self.max_completion_tokens,
         )
         raw_response = response.choices[0].message.content
         cleaned_response = self._clean_response(raw_response)
