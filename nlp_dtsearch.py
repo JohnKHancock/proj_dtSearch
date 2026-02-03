@@ -94,8 +94,8 @@ Be friendly and helpful!
 
     # Token limits (approximate: ~4 chars per token for English)
     DEFAULT_MAX_INPUT_TOKENS = 12_000   # system + history + current message
-    DEFAULT_MAX_USER_MESSAGE_TOKENS = 2_000  # current message only; over = warn and reject
-    DEFAULT_MAX_COMPLETION_TOKENS = 1_024     # API max_tokens for response
+    DEFAULT_MAX_USER_MESSAGE_TOKENS = 8_000  # current message only; over = warn and reject
+    DEFAULT_MAX_COMPLETION_TOKENS = 8_192    # API max_completion_tokens; raise if follow-up replies are cut or empty
 
     @staticmethod
     def _estimate_tokens(text: str) -> int:

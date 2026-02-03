@@ -35,6 +35,17 @@ The app supports username/password authentication for private deployment on Hugg
 
 4. When approving new users, add a new `username:password` pair and share the credentials securely.
 
+### Token limits (Hugging Face Spaces)
+
+If follow-up responses are empty or cut off, raise the completion limit via a **Repository secret** (Settings → Repository secrets → New secret):
+
+| Name | Example value | Purpose |
+|------|----------------|--------|
+| `MAX_COMPLETION_TOKENS` | `2048` or `4096` | Max tokens per model reply (default 2048). |
+| `MAX_INPUT_TOKENS` | `12000` or `16000` | Max context size (system + history + message). |
+
+These are optional; the app uses the defaults in code if not set.
+
 ### Local Development
 
 If `AUTH_CREDENTIALS` is not set, the app runs without authentication (no login required).
