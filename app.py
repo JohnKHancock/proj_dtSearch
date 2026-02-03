@@ -139,20 +139,18 @@ def chat_with_converter(message: str, history: List) -> Tuple[str, List, str]:
         return "", normalized_history, conv_history
     
     try:
-        # Get response from converter
-        response = converter.convert_to_dtSearch(message.strip())
-        
-        # Append as dictionaries - Gradio 6.2.0 Chatbot expects dict format with role/content
+        # Get response from converter (returns response, optional warning)
+        response, warning = converter.convert_to_dtSearch(message.strip())
+        if warning:
+            response = f"⚠️ {warning}\n\n{response}"
+        # Append as dictionaries - Gradio Chatbot expects dict format with role/content
         new_history = normalized_history + [
             {"role": "user", "content": message},
             {"role": "assistant", "content": response}
         ]
-        
-        # Get formatted conversation history for the right panel
         conv_history = format_conversation_history(converter.get_conversation_history())
-        
         return "", new_history, conv_history
-    
+
     except Exception as e:
         error_msg = f"Error: {str(e)}"
         new_history = normalized_history + [

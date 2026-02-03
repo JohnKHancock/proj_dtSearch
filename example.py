@@ -28,7 +28,7 @@ def main():
         print(f"  {natural_query}")
         print()
         
-        dt_search_query = converter.convert_to_dtSearch(natural_query)
+        dt_search_query, _ = converter.convert_to_dtSearch(natural_query)
         
         print(f"dtSearch Query Result:")
         print(f"  {dt_search_query}")
@@ -50,7 +50,7 @@ def main():
         print(f"  {simple_query}")
         print()
         
-        result = converter_gpt4.convert_to_dtSearch(simple_query)
+        result, _ = converter_gpt4.convert_to_dtSearch(simple_query)
         
         print(f"dtSearch Query Result:")
         print(f"  {result}")
@@ -75,7 +75,7 @@ Be concise and only return the query without explanations."""
         print(f"  {query}")
         print()
         
-        result = converter_custom.convert_to_dtSearch(query)
+        result, _ = converter_custom.convert_to_dtSearch(query)
         
         print(f"dtSearch Query Result:")
         print(f"  {result}")
@@ -102,7 +102,7 @@ Be concise and only return the query without explanations."""
         print()
         
         query = "Find documents about machine learning"
-        result = converter.convert_to_dtSearch(query)
+        result, _ = converter.convert_to_dtSearch(query)
         
         print(f"Query: {query}")
         print(f"Result: {result}")

@@ -3,7 +3,7 @@ import json
 import re
 from dotenv import load_dotenv
 from openai import OpenAI
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple
 
 
 class NLPdtSearch:
@@ -91,7 +91,24 @@ Format your response as a numbered list with each suggestion showing:
 
 Be friendly and helpful!
 """
-    
+
+    # Token limits (approximate: ~4 chars per token for English)
+    DEFAULT_MAX_INPUT_TOKENS = 12_000   # system + history + current message
+    DEFAULT_MAX_USER_MESSAGE_TOKENS = 2_000  # current message only; over = warn and reject
+    DEFAULT_MAX_COMPLETION_TOKENS = 1_024     # API max_tokens for response
+
+    @staticmethod
+    def _estimate_tokens(text: str) -> int:
+        """Rough token count (~4 chars per token). For accuracy, use tiktoken."""
+        if not text:
+            return 0
+        return (len(text) + 3) // 4
+
+    @classmethod
+    def _count_messages_tokens(cls, messages: List[Dict[str, str]]) -> int:
+        """Total estimated tokens for a list of message dicts with 'content'."""
+        return sum(cls._estimate_tokens(m.get("content", "")) for m in messages)
+
     def __init__(
         self,
         api_key: Optional[str] = None,
@@ -144,6 +161,11 @@ Be friendly and helpful!
         # Initialize conversation history
         self.conversation_history: List[Dict[str, str]] = []
         self.suggestions_conversation_history: List[Dict[str, str]] = []
+
+        # Token limits (env overrides: MAX_INPUT_TOKENS, MAX_USER_MESSAGE_TOKENS, MAX_COMPLETION_TOKENS)
+        self.max_input_tokens = int(os.getenv("MAX_INPUT_TOKENS", self.DEFAULT_MAX_INPUT_TOKENS))
+        self.max_user_message_tokens = int(os.getenv("MAX_USER_MESSAGE_TOKENS", self.DEFAULT_MAX_USER_MESSAGE_TOKENS))
+        self.max_completion_tokens = int(os.getenv("MAX_COMPLETION_TOKENS", self.DEFAULT_MAX_COMPLETION_TOKENS))
     
     @staticmethod
     def _validate_api_key(api_key: Optional[str]) -> None:
@@ -164,38 +186,40 @@ Be friendly and helpful!
             raise ValueError("OPENAI_API_KEY is not a valid OpenAI API key")
     
     def _build_messages(
-        self, 
-        query: str, 
+        self,
+        query: str,
         use_history: bool = True,
-        conversation_type: str = "standard"
+        conversation_type: str = "standard",
+        history_override: Optional[List[Dict[str, str]]] = None,
     ) -> list[dict[str, str]]:
         """
         Build the message array for the OpenAI API call, including conversation history.
-        
+
         Args:
             query: The natural language query to convert.
             use_history: Whether to include conversation history (default: True).
             conversation_type: Type of conversation ("standard" or "suggestions").
-            
+            history_override: If set, use this instead of internal history (e.g. trimmed for token limit).
+
         Returns:
             List of message dictionaries for the OpenAI API.
         """
         messages = []
-        
-        # Add system prompt only if history is empty (first message)
-        history = self.conversation_history if conversation_type == "standard" else self.suggestions_conversation_history
-        
+        history = (
+            history_override
+            if history_override is not None
+            else (self.conversation_history if conversation_type == "standard" else self.suggestions_conversation_history)
+        )
+
         if not history or not use_history:
             messages.append({"role": "system", "content": self.system_prompt})
-        
-        # Add conversation history if enabled
+
         if use_history and history:
             messages.extend(history)
-        
-        # Add current user message
+
         user_content = self.user_prompt_prefix + query if conversation_type == "standard" else query
         messages.append({"role": "user", "content": user_content})
-        
+
         return messages
     
     def _clean_response(self, response: str) -> str:
@@ -248,35 +272,70 @@ Be friendly and helpful!
         
         return cleaned.strip()
     
-    def convert_to_dtSearch(self, query: str, use_history: bool = True) -> str:
+    def convert_to_dtSearch(self, query: str, use_history: bool = True) -> Tuple[str, Optional[str]]:
         """
         Convert a natural language query into dtSearch syntax.
-        
+
+        Enforces token limits: trims oldest history when over input budget, rejects when
+        the current user message is over max_user_message_tokens, and caps response length.
+
         Args:
             query: The natural language query to convert.
             use_history: Whether to use conversation history (default: True).
-            
+
         Returns:
-            The dtSearch syntax query as a string.
-            
-        Raises:
-            Exception: If the OpenAI API call fails.
+            Tuple of (dtSearch response string, optional warning message when limits applied).
         """
-        messages = self._build_messages(query, use_history=use_history, conversation_type="standard")
+        warning: Optional[str] = None
+        user_content = self.user_prompt_prefix + query
+        user_tokens = self._estimate_tokens(user_content)
+
+        if user_tokens > self.max_user_message_tokens:
+            approx_chars = self.max_user_message_tokens * 4
+            msg = (
+                f"Your message is too long (over {self.max_user_message_tokens} tokens). "
+                f"Please shorten it to about {approx_chars} characters or less so it can be processed."
+            )
+            return msg, "Message length exceeded. Please shorten your message."
+
+        history = self.conversation_history if use_history else []
+        history_override: Optional[List[Dict[str, str]]] = None
+        system_content = self.system_prompt
+        system_tokens = self._estimate_tokens(system_content)
+        budget_for_history = self.max_input_tokens - system_tokens - user_tokens
+
+        if use_history and history and budget_for_history < self._count_messages_tokens(history):
+            # Trim oldest exchanges (pairs of user/assistant) until under budget
+            trimmed = list(history)
+            while trimmed and self._count_messages_tokens(trimmed) > budget_for_history:
+                if len(trimmed) >= 2:
+                    trimmed = trimmed[2:]
+                else:
+                    trimmed = []
+            history_override = trimmed
+            warning = (
+                "Conversation length exceeded the limit. Older messages were omitted for this reply."
+            )
+
+        messages = self._build_messages(
+            query,
+            use_history=use_history,
+            conversation_type="standard",
+            history_override=history_override,
+        )
         response = self.client.chat.completions.create(
             model=self.model,
-            messages=messages
+            messages=messages,
+            max_tokens=self.max_completion_tokens,
         )
         raw_response = response.choices[0].message.content
         cleaned_response = self._clean_response(raw_response)
-        
-        # Add to conversation history if history is enabled
+
         if use_history:
-            user_content = self.user_prompt_prefix + query
             self.conversation_history.append({"role": "user", "content": user_content})
             self.conversation_history.append({"role": "assistant", "content": cleaned_response})
-        
-        return cleaned_response
+
+        return cleaned_response, warning
     
     def convert_to_dtSearch_suggestions(
         self, 

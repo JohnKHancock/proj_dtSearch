@@ -115,15 +115,13 @@ class TestNLPdtSearchMethods:
     def test_convert_to_dtSearch(self, converter, mock_client):
         """Test the convert_to_dtSearch method."""
         query = "find documents about python"
-        result = converter.convert_to_dtSearch(query)
-        
-        # Verify the result
+        result, warning = converter.convert_to_dtSearch(query)
         assert result == "test dtSearch query result"
-        
-        # Verify the API was called correctly
+        assert warning is None
+
         mock_client.chat.completions.create.assert_called_once()
         call_args = mock_client.chat.completions.create.call_args
-        
+        assert call_args.kwargs.get("max_tokens") == converter.max_completion_tokens
         assert call_args.kwargs["model"] == "gpt-4o-mini"
         assert len(call_args.kwargs["messages"]) == 2
         assert call_args.kwargs["messages"][0]["role"] == "system"
@@ -202,9 +200,7 @@ class TestNLPdtSearchIntegration:
         
         # Create converter and convert
         converter = NLPdtSearch(api_key="sk-test", auto_load_env=False)
-        result = converter.convert_to_dtSearch("apples and bananas near grape")
-        
-        # Verify result
+        result, _ = converter.convert_to_dtSearch("apples and bananas near grape")
         assert result == "(apples AND bananas) NEAR/5 grape"
         
         # Verify API call was made

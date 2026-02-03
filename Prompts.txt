@@ -61,4 +61,26 @@ application for only approved users while retaining access to me, the admin.
 Ultimately, I want to grant access on a user request basis.
 
 
+We need to add another feature. We need to limit the number of tokens.
+Before you update the code, list the best ways to limit the number of tokens, 
+but keep the robust responses. Also, if user exceeds the number of tokens, 
+then the user is warned.
+
+Best ways to limit tokens while keeping robust responses:
+1. Cap total input (context) tokens: Count system + history + current message;
+   if over budget, trim oldest conversation turns (sliding window) so the model
+   still gets recent context and responses stay robust. Warn user when trimming.
+2. Cap current user message length: Enforce a max tokens/characters per message;
+   if over, do not send and show a clear warning (e.g. "Message too long. Please
+   shorten to under X characters.").
+3. Set API max_completion_tokens (max_tokens): Limit response length so the model
+   doesn’t over-generate; keeps replies concise and predictable.
+4. Use token counting: tiktoken (OpenAI) for accuracy, or a simple estimate
+   (e.g. ~4 chars per token) to avoid extra dependencies.
+5. Prefer trimming history over rejecting: Dropping oldest turns preserves
+   recent context and avoids failing the request; warn once when trimming.
+
+Implemented: input budget with history trim, per-message cap with warning,
+max_completion_tokens on API calls, and character-based token estimate.
+
 
